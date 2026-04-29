@@ -285,7 +285,7 @@ export async function getTake2Products(): Promise<ProductWithCategory[]> {
 
 export async function getDealsProducts(): Promise<ProductWithCategory[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
-  
+
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -295,6 +295,59 @@ export async function getDealsProducts(): Promise<ProductWithCategory[]> {
 
   if (error) throw error
   return data || []
+}
+
+export async function getPageSections(page: string = 'homepage') {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+
+  const { data, error } = await supabase
+    .from('page_sections')
+    .select('*')
+    .eq('page', page)
+    .order('sort_order', { ascending: true })
+
+  if (error) throw error
+  return data || []
+}
+
+export async function updatePageSection(sectionKey: string, page: string, sectionData: {
+  title?: string;
+  content?: object;
+  image_url?: string;
+  link_url?: string;
+  link_text?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}) {
+  const serviceSupabase = getServiceSupabase()
+
+  const { data, error } = await serviceSupabase
+    .from('page_sections')
+    .update({
+      ...sectionData,
+      updated_at: new Date().toISOString()
+    })
+    .eq('section_key', sectionKey)
+    .eq('page', page)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function reorderPageSections(page: string, orderedKeys: string[]) {
+  const serviceSupabase = getServiceSupabase()
+
+  const updates = orderedKeys.map((key, index) =>
+    serviceSupabase
+      .from('page_sections')
+      .update({ sort_order: index })
+      .eq('section_key', key)
+      .eq('page', page)
+  )
+
+  await Promise.all(updates)
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<ProductWithCategory[]> {

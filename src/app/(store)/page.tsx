@@ -39,24 +39,50 @@ export default async function HomePage() {
   return (
     <div className="space-y-12 pb-16" suppressHydrationWarning>
       {promoBanner && (
-        <div className="bg-gradient-to-r from-furnco-orange to-amber-500 text-white text-center py-2 font-bold text-sm shadow-sm">
+        <div className="bg-gradient-to-r from-furnco-orange to-amber-500 text-white text-center py-2.5 font-bold text-sm shadow-sm">
           {promoBanner.title} - {promoBanner.subtitle}
         </div>
       )}
 
-      <section className="relative h-[400px] w-full overflow-hidden bg-furnco-purple rounded-sm group flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-r from-furnco-purple/90 to-transparent z-10 flex flex-col justify-center px-12 md:px-24">
-          <div className="space-y-2">
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-none drop-shadow-md">
-              {heroHeadline}
-              <span className="block text-furnco-orange font-script transform -rotate-2 mt-2">{heroCta}</span>
-            </h1>
-            <p className="text-white/90 text-lg md:text-xl font-medium tracking-wide mt-4 uppercase bg-furnco-purple/50 inline-block px-3 py-1 rounded-sm backdrop-blur-sm border border-white/10">
-              {heroSubheadline}
-            </p>
+      <section className="relative min-h-[520px] w-full overflow-hidden bg-furnco-purple group">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-furnco-purple via-furnco-purple/95 to-furnco-purple/70 z-10"></div>
+          <img 
+            src={heroImage} 
+            alt="Hero background" 
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" 
+          />
+        </div>
+        
+        <div className="relative z-20 min-h-[520px] flex items-center">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
+            <div className="max-w-2xl">
+              <div className="inline-block mb-4 px-3 py-1 bg-furnco-orange/20 border border-furnco-orange/30 rounded-full">
+                <span className="text-furnco-orange text-xs font-bold uppercase tracking-widest">Year End Sale 2024</span>
+              </div>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[0.9] mb-4">
+                {heroHeadline}
+                <span className="block text-furnco-orange mt-2">{heroCta}</span>
+              </h1>
+              <p className="text-white/90 text-lg md:text-xl font-medium tracking-wide mb-8 max-w-lg">
+                {heroSubheadline}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/deals" className="inline-flex items-center gap-2 bg-furnco-orange hover:bg-furnco-orange/90 text-white font-bold px-8 py-4 rounded-sm transition-all hover:scale-105 hover:shadow-xl">
+                  Shop Now
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+                <Link href="/store" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-4 rounded-sm backdrop-blur-sm border border-white/20 transition-all hover:scale-105">
+                  Browse Catalog
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gray-200" style={{ backgroundImage: `url("${heroImage}")`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-furnco-bg/20 to-transparent z-10"></div>
       </section>
 
       <section className="px-4">

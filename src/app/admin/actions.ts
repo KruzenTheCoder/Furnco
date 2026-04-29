@@ -123,3 +123,62 @@ export async function updateOrderStatusAction(orderId: string, formData: FormDat
   revalidatePath(`/admin/orders/${orderId}`);
   redirect('/admin/orders');
 }
+
+export async function updatePageSectionAction(formData: FormData) {
+  const serviceSupabase = getServiceSupabase();
+
+  const sectionKey = formData.get('section_key') as string;
+  const page = formData.get('page') as string;
+  const title = formData.get('title') as string;
+  const contentJson = formData.get('content') as string;
+  const image_url = formData.get('image_url') as string;
+  const link_url = formData.get('link_url') as string;
+  const link_text = formData.get('link_text') as string;
+  const is_active = formData.get('is_active') === 'true';
+
+  const content = contentJson ? JSON.parse(contentJson) : {};
+
+  const { error } = await serviceSupabase
+    .from('page_sections')
+    .update({
+      title,
+      content,
+      image_url: image_url || null,
+      link_url: link_url || null,
+      link_text: link_text || null,
+      is_active,
+      updated_at: new Date().toISOString()
+    })
+    .eq('section_key', sectionKey)
+    .eq('page', page);
+
+  if (error) {
+    console.error('Error updating page section:', error);
+    throw new Error('Failed to update page section');
+  }
+
+  revalidatePath('/admin/content');
+  redirect('/admin/content');
+}
+
+export async function reorderPageSectionsAction(page: string, orderedKeys: string[]) {
+  const serviceSupabase = getServiceSupabase();
+
+  const updates = orderedKeys.map((key, index) =>
+    serviceSupabase
+      .from('page_sections')
+      .update({ sort_order: index, updated_at: new Date().toISOString() })
+      .eq('section_key', key)
+      .eq('page', page)
+  );
+
+  const results = await Promise.all(updates);
+  const hasError = results.some(r => r.error);
+
+  if (hasError) {
+    console.error('Error reordering page sections');
+    throw new Error('Failed to reorder sections');
+  }
+
+  revalidatePath('/admin/content');
+}
