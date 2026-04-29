@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, Search, Edit, Trash2, Filter, MoreHorizontal, Download, ArrowUpDown, PackageOpen, AlertTriangle, TrendingUp, CheckSquare, Image as ImageIcon } from "lucide-react";
 import { getAdminProducts } from "@/lib/queries";
+import { deleteProductAction } from "../actions";
 
 export default async function AdminProductsPage() {
   let products: Awaited<ReturnType<typeof getAdminProducts>> = [];
@@ -225,9 +226,14 @@ export default async function AdminProductsPage() {
                             <Edit className="w-4 h-4" />
                           </button>
                         </Link>
-                        <button className="p-1.5 text-gray-400 hover:text-gray-900 rounded-md hover:bg-gray-100 transition-colors" title="More">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        <form action={async () => {
+                          'use server';
+                          await deleteProductAction(product.id);
+                        }}>
+                          <button type="submit" className="p-1.5 text-gray-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors" title="Delete">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </form>
                       </div>
                     </td>
                   </tr>

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductSlider } from "@/components/ui/ProductSlider";
 import Link from "next/link";
-import { getProducts, getNewProducts, getTake2Products, getPromoBanners, getCategories } from "@/lib/queries";
+import { getProducts, getNewProducts, getTake2Products, getPromoBanners, getCategories, getSiteContent } from "@/lib/queries";
 
 export default async function HomePage() {
   let featuredProducts: Awaited<ReturnType<typeof getProducts>> = [];
@@ -10,6 +10,7 @@ export default async function HomePage() {
   let take2Products: Awaited<ReturnType<typeof getTake2Products>> = [];
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let banners: Awaited<ReturnType<typeof getPromoBanners>> = [];
+  let heroContent: any = null;
 
   try {
     featuredProducts = await getProducts();
@@ -17,6 +18,11 @@ export default async function HomePage() {
     take2Products = await getTake2Products();
     categories = await getCategories();
     banners = await getPromoBanners();
+    
+    const siteContent = await getSiteContent('hero');
+    if (siteContent && siteContent.content) {
+      heroContent = siteContent.content;
+    }
   } catch (error: any) {
     console.error("Failed to fetch homepage data:", error.message || error);
     console.error("Error details:", JSON.stringify(error, null, 2));
@@ -24,6 +30,11 @@ export default async function HomePage() {
 
   const promoBanner = banners[0];
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
+
+  const heroHeadline = heroContent?.headline || "YEAR END";
+  const heroSubheadline = heroContent?.subheadline || "PRE-BOOK NEW YEAR DEALS";
+  const heroCta = heroContent?.cta || "Sale";
+  const heroImage = heroContent?.image_url || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=2070&auto=format&fit=crop';
 
   return (
     <div className="space-y-12 pb-16" suppressHydrationWarning>
@@ -37,15 +48,15 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-furnco-purple/90 to-transparent z-10 flex flex-col justify-center px-12 md:px-24">
           <div className="space-y-2">
             <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-none drop-shadow-md">
-              YEAR END
-              <span className="block text-furnco-orange font-script transform -rotate-2 mt-2">Sale</span>
+              {heroHeadline}
+              <span className="block text-furnco-orange font-script transform -rotate-2 mt-2">{heroCta}</span>
             </h1>
             <p className="text-white/90 text-lg md:text-xl font-medium tracking-wide mt-4 uppercase bg-furnco-purple/50 inline-block px-3 py-1 rounded-sm backdrop-blur-sm border border-white/10">
-              PRE-BOOK NEW YEAR DEALS
+              {heroSubheadline}
             </p>
           </div>
         </div>
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gray-200" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gray-200" style={{ backgroundImage: `url("${heroImage}")`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
       </section>
 
       <section className="px-4">

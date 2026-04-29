@@ -1,6 +1,7 @@
 import { Search, Filter, Eye, MoreHorizontal, Download, Calendar, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAdminOrders } from "@/lib/queries";
+import Link from "next/link";
 
 export default async function AdminOrdersPage() {
   let orders: Awaited<ReturnType<typeof getAdminOrders>> = [];
@@ -151,9 +152,11 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button className="p-2 text-gray-400 hover:text-furnco-purple rounded-lg hover:bg-purple-50 transition-colors" title="View Details">
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        <Link href={`/admin/orders/${order.id}`}>
+                          <button className="p-2 text-gray-400 hover:text-furnco-purple rounded-lg hover:bg-purple-50 transition-colors" title="View Details">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </Link>
                         <button className="p-2 text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors" title="More Actions">
                           <MoreHorizontal className="w-4 h-4" />
                         </button>

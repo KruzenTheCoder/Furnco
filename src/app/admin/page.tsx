@@ -1,7 +1,43 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, DollarSign, Users, TrendingUp, ArrowUpRight } from "lucide-react";
+import { getAdminProducts, getAdminOrders } from "@/lib/queries";
+import Link from "next/link";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  let products = [];
+  let orders = [];
+
+  try {
+    products = await getAdminProducts();
+    orders = await getAdminOrders();
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
+  }
+
+  // Calculate metrics
+  const totalProducts = products.length;
+  const totalOrders = orders.length;
+  
+  // Calculate total revenue (only from paid, shipped, or delivered orders)
+  const validOrderStatuses = ['paid', 'shipped', 'delivered'];
+  const totalRevenue = orders
+    .filter(order => validOrderStatuses.includes(order.status))
+    .reduce((sum, order) => sum + Number(order.total), 0);
+
+  // Extract unique customers
+  const uniqueCustomers = new Set(orders.map(order => order.user_id).filter(Boolean)).size;
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-ZA', {
+      style: 'currency',
+      currency: 'ZAR',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
+  const recentOrders = orders.slice(0, 5);
+  const topProducts = products.slice(0, 5);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header Section */}
@@ -27,9 +63,9 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900 font-heading">R452,318.90</div>
+            <div className="text-3xl font-bold text-gray-900 font-heading">{formatCurrency(totalRevenue)}</div>
             <p className="text-xs text-green-600 mt-2 flex items-center gap-1 font-medium">
-              <ArrowUpRight className="w-3 h-3" /> +20.1% from last month
+              <ArrowUpRight className="w-3 h-3" /> From completed orders
             </p>
           </CardContent>
         </Card>
@@ -41,9 +77,9 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900 font-heading">+2350</div>
-            <p className="text-xs text-green-600 mt-2 flex items-center gap-1 font-medium">
-              <ArrowUpRight className="w-3 h-3" /> +180.1% from last month
+            <div className="text-3xl font-bold text-gray-900 font-heading">{totalOrders}</div>
+            <p className="text-xs text-blue-600 mt-2 flex items-center gap-1 font-medium">
+              Lifetime orders
             </p>
           </CardContent>
         </Card>
@@ -55,9 +91,9 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900 font-heading">124</div>
+            <div className="text-3xl font-bold text-gray-900 font-heading">{totalProducts}</div>
             <p className="text-xs text-gray-500 mt-2 flex items-center gap-1 font-medium">
-              +12 new products added
+              Active in inventory
             </p>
           </CardContent>
         </Card>
@@ -69,9 +105,9 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900 font-heading">+573</div>
-            <p className="text-xs text-green-600 mt-2 flex items-center gap-1 font-medium">
-              <ArrowUpRight className="w-3 h-3" /> +201 since last week
+            <div className="text-3xl font-bold text-gray-900 font-heading">{uniqueCustomers}</div>
+            <p className="text-xs text-orange-600 mt-2 flex items-center gap-1 font-medium">
+              Registered buyers
             </p>
           </CardContent>
         </Card>
@@ -82,25 +118,29 @@ export default function AdminDashboardPage() {
           <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-4">
             <CardTitle className="font-heading text-lg text-gray-900 flex items-center justify-between">
               Recent Orders
-              <button className="text-xs font-sans font-medium text-furnco-purple hover:underline">View All</button>
+              <Link href="/admin/orders" className="text-xs font-sans font-medium text-furnco-purple hover:underline">View All</Link>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-5">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-medium text-sm group-hover:bg-furnco-purple group-hover:text-white transition-colors">
-                      {i}
+              {recentOrders.length === 0 ? (
+                <p className="text-sm text-gray-500">No orders yet.</p>
+              ) : (
+                recentOrders.map((order, i) => (
+                  <div key={order.id} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-medium text-sm group-hover:bg-furnco-purple group-hover:text-white transition-colors">
+                        {i + 1}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm text-gray-900">Order #{order.id.slice(0, 8).toUpperCase()}</span>
+                        <span className="text-xs text-gray-500 font-medium">{order.user?.full_name || 'Guest Customer'}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm text-gray-900">Order #{1000 + i}</span>
-                      <span className="text-xs text-gray-500 font-medium">Customer {i}</span>
-                    </div>
+                    <div className="text-sm font-bold font-heading text-gray-900">{formatCurrency(Number(order.total))}</div>
                   </div>
-                  <div className="text-sm font-bold font-heading text-gray-900">R3,599.00</div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -108,26 +148,34 @@ export default function AdminDashboardPage() {
         <Card className="col-span-1 border-gray-200 shadow-sm">
           <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-4">
             <CardTitle className="font-heading text-lg text-gray-900 flex items-center justify-between">
-              Top Products
-              <button className="text-xs font-sans font-medium text-furnco-purple hover:underline">View Report</button>
+              Recent Products
+              <Link href="/admin/products" className="text-xs font-sans font-medium text-furnco-purple hover:underline">View Catalog</Link>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-5">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-4 group">
-                  <div className="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
-                    <Package className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
+              {topProducts.length === 0 ? (
+                <p className="text-sm text-gray-500">No products added yet.</p>
+              ) : (
+                topProducts.map((product) => (
+                  <div key={product.id} className="flex items-center gap-4 group">
+                    <div className="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <Package className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
+                      )}
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <span className="font-bold text-sm text-gray-900 group-hover:text-furnco-purple transition-colors cursor-pointer">{product.name}</span>
+                      <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                        In stock: {product.stock}
+                      </span>
+                    </div>
+                    <div className="text-sm font-bold font-heading text-gray-900">{formatCurrency(Number(product.price))}</div>
                   </div>
-                  <div className="flex-1 flex flex-col">
-                    <span className="font-bold text-sm text-gray-900 group-hover:text-furnco-purple transition-colors cursor-pointer">Premium Modern Sofa {i}</span>
-                    <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" /> {30 - i} trending up
-                    </span>
-                  </div>
-                  <div className="text-sm font-bold font-heading text-gray-900">R8,999.00</div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
