@@ -2,6 +2,7 @@
 create table profiles ( 
   id uuid references auth.users on delete cascade primary key, 
   full_name text, 
+  email text,
   avatar_url text, 
   role text check (role in ('admin','customer')) default 'customer', 
   created_at timestamptz default now() 
@@ -35,7 +36,7 @@ create table products (
 -- 4. Orders 
 create table orders ( 
   id uuid primary key default gen_random_uuid(), 
-  user_id uuid references auth.users on delete set null, 
+  user_id uuid references profiles(id) on delete set null, 
   status text check (status in ('pending','paid','shipped','delivered','cancelled')) default 'pending', 
   total numeric(10,2) not null, 
   created_at timestamptz default now(), 
