@@ -2,6 +2,8 @@ import { supabase, getServiceSupabase } from './supabase'
 import type { Product, Category, Order, PromoBanner, SiteContent, ProductWithCategory } from './database.types'
 
 export async function getProducts(): Promise<ProductWithCategory[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -13,6 +15,8 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductWithCategory | null> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -25,6 +29,8 @@ export async function getProductBySlug(slug: string): Promise<ProductWithCategor
 }
 
 export async function getCategories(): Promise<Category[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -35,6 +41,8 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getPromoBanners(): Promise<PromoBanner[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('promo_banners')
     .select('*')
@@ -50,6 +58,8 @@ export async function getPromoBanners(): Promise<PromoBanner[]> {
 }
 
 export async function getSiteContent(section: string): Promise<SiteContent | null> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  
   const { data, error } = await supabase
     .from('site_content')
     .select('*')
@@ -61,6 +71,8 @@ export async function getSiteContent(section: string): Promise<SiteContent | nul
 }
 
 export async function getAdminProducts() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(name)')
@@ -71,6 +83,8 @@ export async function getAdminProducts() {
 }
 
 export async function getAdminOrders() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('orders')
     .select(`
@@ -84,6 +98,8 @@ export async function getAdminOrders() {
 }
 
 export async function getOrderById(orderId: string) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  
   const { data, error } = await supabase
     .from('orders')
     .select(`
@@ -240,6 +256,8 @@ export async function updateSiteContent(section: string, content: object) {
 }
 
 export async function getNewProducts(): Promise<ProductWithCategory[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -252,6 +270,8 @@ export async function getNewProducts(): Promise<ProductWithCategory[]> {
 }
 
 export async function getTake2Products(): Promise<ProductWithCategory[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -264,6 +284,8 @@ export async function getTake2Products(): Promise<ProductWithCategory[]> {
 }
 
 export async function getDealsProducts(): Promise<ProductWithCategory[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
@@ -276,6 +298,8 @@ export async function getDealsProducts(): Promise<ProductWithCategory[]> {
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<ProductWithCategory[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
